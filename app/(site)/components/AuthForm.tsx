@@ -7,6 +7,7 @@ import { useForm, FieldValues, SubmitHandler } from "react-hook-form"
 import Button from "../../components/Button"
 import AuthSocialButton from "./AuthSocialButton"
 import { BsGithub,BsGoogle } from 'react-icons/bs'
+import axios from "axios"
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -41,6 +42,7 @@ const AuthForm = () => {
 
         if (variant === 'REGISTER') {
             //axios register
+            axios.post('/api/register',data)
         }
         if (variant === 'LOGIN') {
             //nextauth signin
