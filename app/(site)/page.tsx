@@ -1,8 +1,5 @@
 import Image from "next/image";
 import AuthForm from "./components/AuthForm";
-import UserIcon from "../components/icons/UserIcon";
-import Button from "../components/Button";
-
 export default function Home() {
     return (
         <div className="flex flex-col md:flex-row min-h-full justify-center items-center py-12 sm:px-6 lg:px-8 bg-slate-50">

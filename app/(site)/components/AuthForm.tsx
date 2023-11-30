@@ -1,13 +1,14 @@
 'use client'
 
 import Input from "@/app/components/Input"
-import { type } from "os"
 import { useCallback, useState } from "react"
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form"
 import Button from "../../components/Button"
 import AuthSocialButton from "./AuthSocialButton"
-import { BsGithub,BsGoogle } from 'react-icons/bs'
+import { BsGithub, BsGoogle } from 'react-icons/bs'
 import axios from "axios"
+import { toast } from "react-hot-toast"
+import { signIn } from 'next-auth/react'
 
 type Variant = "LOGIN" | "REGISTER"
 
@@ -42,16 +43,48 @@ const AuthForm = () => {
 
         if (variant === 'REGISTER') {
             //axios register
-            axios.post('/api/register',data)
+            axios.post('/api/register', data)
+                .catch(() => toast.error('Something went wrong!'))
+                .finally(() => setIsLoading(false))
         }
         if (variant === 'LOGIN') {
             //nextauth signin
+            signIn('credentials', {
+                ...data,
+                redirect: false
+            })
+                .then((callback) => {
+
+                    if (callback?.ok) {
+                        toast.success('Logged in')
+                    }
+                    if (callback?.error) {
+                        toast.error('Invalid credentials')
+                    }
+
+                })
+                .finally(() => setIsLoading(false))
+
         }
     }
 
     const socialAction = (action: string) => {
         setIsLoading(true)
         //Nextauth social sign in
+        signIn(action,
+            { redirect: false }
+        )
+            .then((callback) => {
+                if (callback?.ok) {
+                    toast.success('Logged in')
+                }
+                if (callback?.error) {
+                    toast.error('Invalid credentials')
+                }
+            })
+            .finally(() => setIsLoading(false))
+
+
     }
     return (
         <div className="mt-8 sm:mx-auto sm:w-full w-[400px] sm:max-w-md">
@@ -62,7 +95,7 @@ const AuthForm = () => {
                     {variant === 'REGISTER' && (
                         <Input errors={errors} label="Name" id="name" register={register} disabled={isLoading} />
                     )}
-                    <Input errors={errors} label="Email" id="email" type="email" register={register} disabled={isLoading}/>
+                    <Input errors={errors} label="Email" id="email" type="email" register={register} disabled={isLoading} />
                     <Input errors={errors} label="Password" id="password" type="password" register={register} disabled={isLoading} />
 
                     <div>
@@ -84,8 +117,8 @@ const AuthForm = () => {
                             </div>
                         </div>
                         <div className="mt-6 flex gap-2">
-                            <AuthSocialButton icon={BsGithub} onClickSocial={()=>socialAction('github')}/>
-                            <AuthSocialButton icon={BsGoogle} onClickSocial={()=>socialAction('google')}/>
+                            <AuthSocialButton icon={BsGithub} onClickSocial={() => socialAction('github')} />
+                            <AuthSocialButton icon={BsGoogle} onClickSocial={() => socialAction('google')} />
                         </div>
                         <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-slate-500">
                             <div>
