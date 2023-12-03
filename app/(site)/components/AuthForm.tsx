@@ -1,18 +1,21 @@
 'use client'
 
 import Input from "@/app/components/Input"
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm, FieldValues, SubmitHandler } from "react-hook-form"
 import Button from "../../components/Button"
 import AuthSocialButton from "./AuthSocialButton"
 import { BsGithub, BsGoogle } from 'react-icons/bs'
 import axios from "axios"
 import { toast } from "react-hot-toast"
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
+import { useRouter } from "next/navigation"
 
 type Variant = "LOGIN" | "REGISTER"
 
 const AuthForm = () => {
+    const session = useSession();
+    const router = useRouter();
     const [variant, setVariant] = useState<Variant>('LOGIN');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -23,6 +26,14 @@ const AuthForm = () => {
             setVariant("LOGIN")
         }
     }, [variant])
+
+    useEffect(() => {
+        if (session?.status === 'authenticated') {
+            // console.log(session, 'Authenticated');
+            router.push('/users')
+
+        }
+    }, [session?.status])
 
     const {
         register,
@@ -44,6 +55,7 @@ const AuthForm = () => {
         if (variant === 'REGISTER') {
             //axios register
             axios.post('/api/register', data)
+                .then(() => signIn('credentials', data))
                 .catch(() => toast.error('Something went wrong!'))
                 .finally(() => setIsLoading(false))
         }
@@ -57,6 +69,7 @@ const AuthForm = () => {
 
                     if (callback?.ok) {
                         toast.success('Logged in')
+                        router.push('/users')
                     }
                     if (callback?.error) {
                         toast.error('Invalid credentials')
@@ -75,6 +88,7 @@ const AuthForm = () => {
             { redirect: false }
         )
             .then((callback) => {
+                console.log("callback", callback)
                 if (callback?.ok) {
                     toast.success('Logged in')
                 }
@@ -83,8 +97,6 @@ const AuthForm = () => {
                 }
             })
             .finally(() => setIsLoading(false))
-
-
     }
     return (
         <div className="mt-8 sm:mx-auto sm:w-full w-[400px] sm:max-w-md">
