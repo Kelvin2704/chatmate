@@ -25,8 +25,9 @@ const DesktopItem: React.FC<DesktopItemProps> = (
     return (
         <li onClick={handleClick}>
             <Link href={href} className={`
-            group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold text-slate-500 hover:text-white hover:bg-blue-600
-            ${active && 'bg-blue-600 text-white'}
+            group flex gap-x-3 rounded-md p-3 text-sm leading-6 font-semibold 
+            ${active ?'text-white bg-blue-500':'text-slate-400'}
+            
             `}>
                 <Icon className="h-6 w-6 shrink-0"/>
                 <span className="sr-only">{label}</span>
